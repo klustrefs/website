@@ -1,77 +1,50 @@
 ---
-title: Goldydocs
+title: Klustre
+features:
+  - title: Native Lustre mounts
+    description: Point a PV at a pre-provisioned Lustre share and KlustreFS makes sure pods mount it using familiar `mount.lustre` options.
+    icon: feature-insights.svg
+    target_icon: fa-database
+    target_label: Lustre share
+  - title: Portable HPC pipelines
+    description: Reuse the same Lustre-backed scratch space whether the job runs under SLURM or Kubernetes; PVCs keep the paths you already trust.
+    icon: feature-ops.svg
+    target_icon: fa-server
+    target_label: HPC job
+  - title: Straightforward PVC bindings
+    description: Keep each PVC pointed at a single Lustre export so pods only mount the directories Lustre admins already own.
+    icon: feature-insights-alt.svg
+    target_icon: fa-folder-tree
+    target_label: Namespaced PVC
 ---
 
-{{< blocks/cover title="Welcome to Goldydocs: A Docsy Example Project!" image_anchor="top" height="full" >}}
-<a class="btn btn-lg btn-primary me-3 mb-4" href="/docs/">
-  Learn More <i class="fas fa-arrow-alt-circle-right ms-2"></i>
-</a>
-<a class="btn btn-lg btn-secondary me-3 mb-4" href="https://github.com/google/docsy-example">
-  Download <i class="fab fa-github ms-2 "></i>
-</a>
-<p class="lead mt-5">Porridge temperature assessment &mdash; in the cloud!</p>
-{{< blocks/link-down color="info" >}}
+{{< blocks/cover image_anchor="top" height="min" color="primary" >}}
+<img src="klustre-logo.svg" class="site-logo" alt="KlustreFS logo">
+<h2 class="mt-4">
+  High-performance Lustre storage, scheduled natively inside Kubernetes.
+</h2>
+<div class="mt-5 mx-auto home-hero__cta d-flex flex-column flex-md-row justify-content-center">
+  <a class="btn btn-lg btn-primary me-md-3 mb-4" href="/docs">
+    Learn more <i class="fas fa-book-open ms-2"></i>
+  </a>
+  <a class="btn btn-lg btn-secondary mb-4" href="/docs/quickstart/">
+    Quickstart <i class="fas fa-arrow-alt-circle-right ms-2"></i>
+  </a>
+</div>
 {{< /blocks/cover >}}
 
-
-{{% blocks/lead color="primary" %}}
-Goldydocs provides a single web UI providing visibility into porridge
-temperature, chair size, and bed softness metrics! You can even find out who's
-been eating **your** porridge.
-
-(Sadly, Goldydocs isn't a real project, but you can use this site as an example
-to create your own real websites with [Docsy](https://docsy.dev))
+{{% blocks/lead color="white" %}}
+  <h1>What is KlustreFS?</h1>
+  <p>
+    <strong>KlustreFS</strong> is a CSI driver that mounts your existing Lustre shares straight into
+    Kubernetes, bridging the gap between HPC and cloud-native infrastructure. Use the same
+    PV/PVC workflow you already know while letting AI training workloads and other persistent pods
+    access high-throughput (RWM) scratch space—no storage re-platforming required.
+  </p>
 {{% /blocks/lead %}}
 
+<div class="container">
+  {{< home/features >}}
+</div>
 
-{{% blocks/section color="dark" type="row" %}}
-{{% blocks/feature icon="fa-lightbulb" title="New chair metrics!" %}}
-The Goldydocs UI now shows chair size metrics by default.
-
-Please follow this space for updates!
-{{% /blocks/feature %}}
-
-
-{{% blocks/feature icon="fab fa-github" title="Contributions welcome!" url="https://github.com/google/docsy-example" %}}
-We do a [Pull Request](https://github.com/google/docsy-example/pulls) contributions workflow on **GitHub**. New users are always welcome!
-{{% /blocks/feature %}}
-
-
-{{% blocks/feature icon="fab fa-twitter" title="Follow us on Twitter!" url="https://twitter.com/docsydocs" %}}
-For announcement of latest features etc.
-{{% /blocks/feature %}}
-
-
-{{% /blocks/section %}}
-
-
-{{% blocks/section %}}
-This is the second section
-{.h1 .text-center}
-{{% /blocks/section %}}
-
-
-{{% blocks/section type="row" %}}
-
-{{% blocks/feature icon="fab fa-app-store-ios" title="Download **from AppStore**" %}}
-Get the Goldydocs app!
-{{% /blocks/feature %}}
-
-{{% blocks/feature icon="fab fa-github" title="Contributions welcome!"
-    url="https://github.com/google/docsy-example" %}}
-We do a [Pull Request](https://github.com/google/docsy-example/pulls)
-contributions workflow on **GitHub**. New users are always welcome!
-{{% /blocks/feature %}}
-
-{{% blocks/feature icon="fab fa-twitter" title="Follow us on Twitter!"
-    url="https://twitter.com/GoHugoIO" %}}
-For announcement of latest features etc.
-{{% /blocks/feature %}}
-
-{{% /blocks/section %}}
-
-
-{{% blocks/section %}}
-This is the another section
-{.h1 .text-center}
-{{% /blocks/section %}}
+<div class="home-footer-separator"></div>

@@ -1,5 +1,20 @@
+# Build artifacts
 /public
 resources/
-node_modules/
-package-lock.json
 .hugo_build.lock
+
+# Dependencies
+node_modules/
+
+# Local tooling / logs
+.DS_Store
+npm-debug.log*
+yarn-error.log*
+
+# IDE / editor folders
+.idea/
+.vscode/
+
+# Package manager files (lock files can be regenerated)
+package-lock.json
+yarn.lock

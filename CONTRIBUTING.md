@@ -1,28 +1,33 @@
-# How to Contribute
+# Contributing to the KlustreFS docs
 
-We'd love to accept your patches and contributions to this project. There are
-just a few small guidelines you need to follow.
+Thanks for helping improve the KlustreFS documentation site.
 
-## Contributor License Agreement
+This repository hosts the Hugo + Docsy sources for <https://klustrefs.io>. If you want to
+change the CSI plugin code itself, head to <https://github.com/klustrefs/klustre-csi-plugin>.
 
-Contributions to this project must be accompanied by a Contributor License
-Agreement. You (or your employer) retain the copyright to your contribution;
-this simply gives us permission to use and redistribute your contributions as
-part of the project. Head over to <https://cla.developers.google.com/> to see
-your current agreements on file or to sign a new one.
+For detailed instructions (tooling, local preview, style), see the in-site docs page:
 
-You generally only need to submit a CLA once, so if you've already submitted one
-(even if it was for a different project), you probably don't need to do it
-again.
+- `content/en/docs/contribution-guidelines.md` → <https://klustrefs.io/docs/contribution-guidelines/>
 
-## Code reviews
+## Basic workflow
 
-All submissions, including submissions by project members, require review. We
-use GitHub pull requests for this purpose. Consult
-[GitHub Help](https://help.github.com/articles/about-pull-requests/) for more
-information on using pull requests.
+1. Fork <https://github.com/klustrefs/website>.
+2. Create a feature branch, for example `docs/my-topic`.
+3. Edit the Markdown under `content/en/...` or templates under `layouts/...`.
+4. Run `npm install` once, then `npm run dev` or `hugo server` to preview locally.
+5. Commit with clear messages (for example, `docs: update overview page`).
+6. Open a pull request against `main`. Netlify will attach a preview URL to the PR.
 
-## Community Guidelines
+All changes are reviewed via GitHub pull requests before merging.
 
-This project follows
-[Google's Open Source Community Guidelines](https://opensource.google.com/conduct/).
+## Reporting issues
+
+If you spot a problem but can’t fix it immediately, open an issue in
+<https://github.com/klustrefs/website/issues> with:
+
+- The URL of the affected page.
+- A short description of what’s wrong (typo, outdated content, missing section, etc.).
+- Optional suggestion, log output, or screenshot.
+
+Discussion about the CSI plugin itself happens in
+<https://github.com/klustrefs/klustre-csi-plugin/discussions>.

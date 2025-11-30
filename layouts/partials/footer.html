@@ -1,0 +1,35 @@
+<footer class="td-footer">
+  <div class="container-fluid px-4">
+    <div class="td-footer__inner">
+      <div class="td-footer__logo">
+        <img src="{{ "img/klustre-logo-white.svg" | relURL }}" alt="KlustreFS logo">
+      </div>
+      {{ with site.Params.links.user }}
+      <div class="td-footer__community">
+        <h5>Community</h5>
+        <div class="td-footer__social">
+          {{ range . }}
+          <a href="{{ .url }}" aria-label="{{ .name }}"><i class="{{ .icon }}"></i></a>
+          {{ end }}
+        </div>
+      </div>
+      {{ end }}
+      {{ with site.Params.links.developer }}
+      <div class="td-footer__contact">
+        <h5>Get in touch</h5>
+        <ul>
+          {{ range . }}
+          <li>
+            <a href="{{ .url }}"><i class="{{ .icon }}"></i> {{ .name }}</a>
+            {{ with .desc }}<span>— {{ . }}</span>{{ end }}
+          </li>
+          {{ end }}
+        </ul>
+      </div>
+      {{ end }}
+    </div>
+    <div class="td-footer__meta">
+      © 2025 KlustreFS Authors | Docs <a href="{{ "LICENSE" | relURL }}">CC BY 4.0</a>
+    </div>
+  </div>
+</footer>

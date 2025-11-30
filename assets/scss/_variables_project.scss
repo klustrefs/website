@@ -1,6 +1,13 @@
 /*
-
-Add styles or override variables from the theme here.
-
+Project palette overrides to align with KlustreFS branding.
 */
 
+$primary: #3364ff;
+$secondary: #112d6a;
+$info: #9ac7ff;
+
+$body-color: #0a0f1a;
+$body-bg: #ffffff;
+$link-color: $primary;
+$input-border-color: rgba(15, 31, 79, 0.25);
+$card-bg: rgba(255, 255, 255, 0.94);

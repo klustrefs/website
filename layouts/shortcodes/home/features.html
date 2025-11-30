@@ -1,0 +1,37 @@
+{{ $features := $.Page.Params.features }}
+{{ if $features }}
+<section class="home-section home-section--features">
+  <div class="section-heading">
+    <p class="eyebrow">Why KlustreFS</p>
+    <h2>Everything you need to bring Lustre into Kubernetes</h2>
+  </div>
+  <div class="c-features">
+    {{ range $features }}
+      {{ $entry := . }}
+      {{ $icon := cond $entry.icon (printf "img/%s" $entry.icon | relURL) "" }}
+      <article class="o-feature-card">
+        <div class="o-feature-card__flow">
+          {{ with $icon }}<img class="o-feature-card__icon" src="{{ . }}" alt="{{ $entry.title }} icon">{{ end }}
+          <span class="o-feature-card__arrow" aria-hidden="true">&rarr;</span>
+          {{ if $entry.target_icon }}
+          <div class="o-feature-card__target">
+            <i class="fas {{ $entry.target_icon }}"></i>
+            {{ with $entry.target_label }}<span>{{ . }}</span>{{ end }}
+          </div>
+          {{ end }}
+        </div>
+        <div>
+          <h3>{{ $entry.title }}</h3>
+          <p class="lead">{{ $entry.description | markdownify }}</p>
+        </div>
+      </article>
+    {{ end }}
+  </div>
+  <div class="c-feature-grid">
+    <div><h4><i class="fas fa-database"></i></h4><p>Static PV definitions map directly to Lustre exports.</p></div>
+    <div><h4><i class="fas fa-network-wired"></i></h4><p>Uses the Lustre client already installed on worker nodes.</p></div>
+    <div><h4><i class="fas fa-clone"></i></h4><p>ReadWriteMany shared scratch volumes for pods.</p></div>
+    <div><h4><i class="fas fa-exchange-alt"></i></h4><p>Keep storage flows identical when moving jobs off SLURM.</p></div>
+  </div>
+</section>
+{{ end }}

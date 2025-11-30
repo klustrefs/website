@@ -4,6 +4,7 @@ date: 2018-01-04
 description: >
   A short lead description about this content page. Text here can also be
   **bold** or _italic_ and can even be split over multiple paragraphs.
+draft: true
 ---
 
 Text can be **bold**, _italic_, or ~~strikethrough~~. [Links](https://github.com) should be blue with no underlines (unless hovered over).
@@ -242,3 +243,4 @@ Bacon ipsum dolor sit amet t-bone doner shank drumstick, pork belly porchetta ch
 ```
 This is the final element on the page and there should be no margin below this.
 ```
+
