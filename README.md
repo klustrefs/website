@@ -1,4 +1,4 @@
-# KlustreFS Documentation Site
+# KlustreFS Documentation
 
 This repository contains the Hugo + Docsy site for the KlustreFS CSI plugin. The live site explains how to install the CSI driver, mount existing Lustre shares from Kubernetes, and understand the project’s roadmap.
 
