@@ -1,5 +1,7 @@
 # KlustreFS Documentation
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/1ebeffd8-b2a6-46c9-a10f-ee9cf2012f20/deploy-status)](https://app.netlify.com/projects/fastidious-daifuku-4fed3d/deploys)
+
 This repository contains the Hugo + Docsy site for the KlustreFS CSI plugin. The live site explains how to install the CSI driver, mount existing Lustre shares from Kubernetes, and understand the project’s roadmap.
 
 ## Requirements
