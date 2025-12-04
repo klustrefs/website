@@ -4,25 +4,68 @@ description: Apply the published Klustre CSI manifests with kubectl.
 weight: 50
 ---
 
-## 1. Clone the repository
+## 1. Install directly with Kustomize (no clone)
+
+If you just want a default install, you don’t need to clone the repository. You can apply the published manifests directly from GitHub:
+
+```bash
+export KLUSTREFS_VERSION=main
+kubectl apply -k "github.com/klustrefs/klustre-csi-plugin//manifests?ref=$KLUSTREFS_VERSION"
+```
+
+The `manifests/` directory includes the namespace, RBAC, `CSIDriver`, daemonset, node service account, default `StorageClass` (`klustre-csi-static`), and settings config map.
+
+## 2. Work from a local clone (recommended for customization)
+
+If you plan to inspect or customize the manifests, clone the repo and work from a local checkout:
 
 ```bash
 git clone https://github.com/klustrefs/klustre-csi-plugin.git
 cd klustre-csi-plugin
 ```
 
-## 2. Review settings
-
-Inspect `manifests/configmap-klustre-csi-settings.yaml` if you need to override defaults such as `logLevel`, `nodeImage`, or the CSI endpoint path. Adjust the config map before applying.
-
-## 3. Apply manifests
+You can perform the same default install from the local checkout:
 
 ```bash
-kubectl apply -f manifests/namespace.yaml
-kubectl apply -f manifests/
+kubectl apply -k manifests
 ```
 
-The directory includes the namespace, RBAC, `CSIDriver`, daemonset, node service account, default `StorageClass` (`klustre-csi-static`), and settings config map.
+## 3. Customize with a Kustomize overlay (optional)
+
+To change defaults such as `logLevel`, `nodeImage`, or the CSI endpoint path without editing the base files, create a small overlay that patches the settings config map.
+
+Create `overlays/my-cluster/kustomization.yaml`:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../manifests
+
+patchesStrategicMerge:
+  - configmap-klustre-csi-settings-patch.yaml
+```
+
+Create `overlays/my-cluster/configmap-klustre-csi-settings-patch.yaml`:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: klustre-csi-settings
+  namespace: klustre-system
+data:
+  logLevel: debug
+  nodeImage: ghcr.io/klustrefs/klustre-csi-plugin:0.1.1
+```
+
+Then apply your overlay instead of the base:
+
+```bash
+kubectl apply -k overlays/my-cluster
+```
+
+You can add additional patches in the overlay (for example, to tweak the daemonset or StorageClass) as your cluster needs grow.
 
 ## 4. Verify rollout
 

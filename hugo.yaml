@@ -23,6 +23,13 @@ taxonomies:
   tag: tags
   category: categories
 
+menu:
+  main:
+    - name: Repository
+      url: https://github.com/klustrefs/klustre-csi-plugin
+      weight: 90
+      pre: "<i class='fab fa-github me-1'></i>"
+
 # Highlighting config
 pygmentsCodeFences: true
 pygmentsUseClasses: false

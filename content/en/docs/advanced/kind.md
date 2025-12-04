@@ -15,7 +15,7 @@ This walkthrough targets Linux hosts with Docker/Podman because Kind worker node
 - Docker 20.10+ (or a compatible container runtime supported by Kind).
 - [Kind](https://kind.sigs.k8s.io/) v0.20+.
 - `kubectl` v1.27+ pointed at your Kind context.
-- `git` (used to fetch the manifests) and a GitHub personal access token with `read:packages` if you plan to pull images from GitHub Container Registry via an image pull secret.
+- A GitHub personal access token with `read:packages` if you plan to pull images from GitHub Container Registry via an image pull secret (optional but recommended).
 
 ## 1. Create a Kind cluster
 
@@ -69,77 +69,76 @@ for node in $(kind get nodes --name klustre-kind); do
 done
 ```
 
-## 3. Prepare the cluster namespace, labels, and image pull secret
+## 3. Prepare node labels
+
+Label the Kind worker node so it is eligible to run Lustre workloads:
 
 ```bash
-kubectl create namespace klustre-system
 kubectl label node klustre-kind-worker lustre.csi.klustrefs.io/lustre-client=true
 ```
 
 > The default `klustre-csi-static` storage class uses the label above inside `allowedTopologies`. Label any node that will run workloads needing Lustre.
 
-If you have a GitHub token, log in to GHCR and convert your local Docker config into the `ghcr-secret` referenced by the manifests:
-
-```bash
-echo '<github-token>' | docker login ghcr.io -u <github-username> --password-stdin
-kubectl create secret generic ghcr-secret \
-  --namespace klustre-system \
-  --from-file=.dockerconfigjson=$HOME/.docker/config.json \
-  --type=kubernetes.io/dockerconfigjson
-```
-
-Alternatively, edit `manifests/daemonset-klustre-csi-node.yaml` and remove the `imagePullSecrets` stanza if you prefer to pull anonymously (the container image is public).
-
 ## 4. Deploy Klustre CSI Plugin
 
+Install the driver into the Kind cluster using the published Kustomize manifests:
+
 ```bash
-git clone https://github.com/klustrefs/klustre-csi-plugin.git
-cd klustre-csi-plugin
+export KLUSTREFS_VERSION=main
+kubectl apply -k "github.com/klustrefs/klustre-csi-plugin//manifests?ref=$KLUSTREFS_VERSION"
+```
 
-kubectl apply -f manifests/namespace.yaml
-kubectl apply -f manifests/
+Then watch the pods come up:
 
+```bash
 kubectl get pods -n klustre-system -o wide
+```
+
+Then wait for the daemonset rollout to complete:
+
+```bash
+kubectl rollout status daemonset/klustre-csi-node -n klustre-system --timeout=120s
 ```
 
 Wait until the `klustre-csi-node` daemonset shows `READY` pods on the control-plane and worker nodes.
 
 ## 5. Mount the simulated Lustre share
 
-Create a demo manifest that provisions a static PersistentVolume and a busybox deployment. Because the `mount.lustre` shim mounts `tmpfs`, data is confined to the worker node memory and disappears when the pod restarts. Replace the `source` string with the Lustre target you plan to use later—here it is only metadata.
+Create a demo manifest that provisions a static PersistentVolume and a BusyBox deployment. Because the `mount.lustre` shim mounts `tmpfs`, data is confined to the worker node memory and disappears when the pod restarts. Replace the `source` string with the Lustre target you plan to use later—here it is only metadata.
+
+Create the demo manifest with a heredoc:
 
 ```bash
 cat <<'EOF' > lustre-demo.yaml
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: lustre-static-pv
+  name: lustre-demo-pv
 spec:
+  storageClassName: klustre-csi-static
   capacity:
-    storage: 10Gi
+    storage: 1Ti
   accessModes:
     - ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: klustre-csi-static
   csi:
     driver: lustre.csi.klustrefs.io
-    volumeHandle: lustre-static-pv
+    volumeHandle: lustre-demo
     volumeAttributes:
+      # This is only metadata in the Kind lab; replace with a real target for production clusters.
       source: 10.0.0.1@tcp0:/lustre-fs
-      mountOptions: flock,user_xattr
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: lustre-static-pvc
+  name: lustre-demo-pvc
 spec:
+  storageClassName: klustre-csi-static
   accessModes:
     - ReadWriteMany
-  storageClassName: klustre-csi-static
   resources:
     requests:
-      storage: 10Gi
-  volumeName: lustre-static-pv
+      storage: 1Ti
+  volumeName: lustre-demo-pv
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -156,31 +155,60 @@ spec:
         app: lustre-demo
     spec:
       containers:
-      - name: app
-        image: busybox
-        command: ["sleep", "infinity"]
-        volumeMounts:
-        - name: lustre-share
-          mountPath: /mnt/lustre
+        - name: demo
+          image: busybox:1.36
+          command: ["sh", "-c", "sleep 3600"]
+          volumeMounts:
+            - name: lustre
+              mountPath: /mnt/lustre
       volumes:
-      - name: lustre-share
-        persistentVolumeClaim:
-          claimName: lustre-static-pvc
+        - name: lustre
+          persistentVolumeClaim:
+            claimName: lustre-demo-pvc
 EOF
+```
 
+Apply the demo manifest:
+
+```bash
 kubectl apply -f lustre-demo.yaml
+```
+
+Wait for the demo deployment to become available:
+
+```bash
 kubectl wait --for=condition=available deployment/lustre-demo
+```
+
+Confirm the Lustre (tmpfs) mount is visible in the pod:
+
+```bash
 kubectl exec deploy/lustre-demo -- df -h /mnt/lustre
+```
+
+Write and read back a test file:
+
+```bash
 kubectl exec deploy/lustre-demo -- sh -c 'echo "hello from $(hostname)" > /mnt/lustre/hello.txt'
+```
+
+```bash
 kubectl exec deploy/lustre-demo -- cat /mnt/lustre/hello.txt
 ```
 
 You should see the `tmpfs` mount reported by `df` and be able to write temporary files.
 
-## 6. Clean up
+## 6. Clean up (optional)
+
+Remove the demo PV, PVC, and Deployment:
 
 ```bash
 kubectl delete -f lustre-demo.yaml
+```
+
+If you want to tear down the Kind environment as well:
+
+```bash
 kubectl delete namespace klustre-system
 kind delete cluster --name klustre-kind
 rm kind-klustre.yaml lustre-shim.sh lustre-unmount.sh lustre-demo.yaml
@@ -188,8 +216,8 @@ rm kind-klustre.yaml lustre-shim.sh lustre-unmount.sh lustre-demo.yaml
 
 ## Troubleshooting
 
-- If the daemonset pods crash with `ImagePullBackOff`, double-check that `ghcr-secret` exists in `klustre-system` or remove the `imagePullSecrets` entry from the daemonset manifest.
-- The shim script must be present on every node that runs the plugin; rerun the installation loop if you add more nodes.
+- If the daemonset pods crash with `ImagePullBackOff`, use `kubectl describe daemonset/klustre-csi-node -n klustre-system` and `kubectl logs daemonset/klustre-csi-node -n klustre-system -c klustre-csi` to inspect the error. The image is public on `ghcr.io`, so no image pull secret is required; ensure your nodes can reach `ghcr.io` (or your proxy) from inside the cluster.
+- If the demo pod fails to mount `/mnt/lustre`, make sure the shim scripts were copied to every Kind node and are executable. You can rerun the `docker cp ... mount.lustre` / `umount.lustre` loop from step 2 after adding or recreating nodes.
 - Remember that `tmpfs` lives in RAM. Large writes in the demo workload consume memory inside the Kind worker container and disappear after pod restarts. Move to a real Lustre environment for persistent data testing.
 
 Use this local experience to get familiar with the manifests and volume lifecycle, then follow the [main Introduction guide](/docs/) when you are ready to operate against real Lustre backends.
